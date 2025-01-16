@@ -15,10 +15,12 @@ builtin "Enhance" workflow. In particular:
 
 ## Installation
 
+1. Download the [latest release](https://github.com/thomas001/lr-pristine-raw-importer/releases)
+
 In the Lightroom plugin manager:
 
-1. Disable the `DxO PureRAW 4 Importer` plugin
-2. Add `lr-pristine-raw-importer.lrplugin` as a new plugin
+2. Disable the `DxO PureRAW 4 Importer` plugin
+3. Add `lr-pristine-raw-importer.lrplugin` as a new plugin
 
 
 ## Caveats
