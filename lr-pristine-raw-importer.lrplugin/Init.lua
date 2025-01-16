@@ -96,6 +96,9 @@ local function importLoop(context)
                     return
                 end
                 Logger:errorf("Import failure: %s", err)
+                -- Shut down the plugin so the error does not repeat over and
+                -- over again.
+                _G.shutting_down = true
             end)
             LrDialogs.attachErrorDialogToFunctionContext(context)
             singleIteration(context, trigger_path, import_path)
