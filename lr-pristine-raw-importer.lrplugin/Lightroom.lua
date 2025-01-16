@@ -1,3 +1,6 @@
+-- Copyright (c) 2025 Thomas Weidner. All rights reserved.
+-- Licensed under the Apache License, Version 2.0. See LICENSE for details.
+
 --- A minimal set of type annotations for Lightroom's Lua SDK.
 --- Just enough to get this plugin type checked.
 
