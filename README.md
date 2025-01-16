@@ -21,7 +21,7 @@ In the Lightroom plugin manager:
 
 2. Disable the `DxO PureRAW 4 Importer` plugin
 3. Add `lr-pristine-raw-importer.lrplugin` as a new plugin
-
+4. Restart Lightroom
 
 ## Caveats
 
