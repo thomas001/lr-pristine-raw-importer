@@ -38,9 +38,6 @@ local function processPhoto(cat, exportedPath, sourcePath)
         cat:withWriteAccessDo(string.format("Importing %s", leafName), function(context)
             local exportedPhoto = cat:addPhoto(exportedPath, sourcePhoto, "above")
             Develop.copyFromSource(exportedPhoto, sourcePhoto)
-
-            Logger:infof("Metadata for %q", exportedPath)
-            Utils.logTable(exportedPhoto:getRawMetadata(), "")
         end)
     end
 end
