@@ -18,24 +18,11 @@ local SETTINGS_TO_REVERT = {
 --- @param sourcePhoto LrPhoto
 --- @return nil
 local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
-    -- 1. Store import settings
-    local exportedSettings = exportedPhoto:getDevelopSettings()
-    -- 2. Copy settings from source photo
-    -- Using copySettings/pasteSettings is much more stable, but we need to revert some pasted settings
-    local ok = sourcePhoto:copySettings()
-    if not ok then
-        error(("Could not copy settings from %q"):format(sourcePhoto:getFormattedMetadata("fileName")))
-    end
-    ok = exportedPhoto:pasteSettings()
-    if not ok then
-        error(("Could not paste settings to %1"):format(exportedPhoto:getFormattedMetadata("fileName")))
-    end
-    -- 3. Update settings
-    local newSettings = {} --- @type {[string]:LrUnspecified}
+    local sourceSettings = sourcePhoto:getDevelopSettings()
     for _, s in ipairs(SETTINGS_TO_REVERT) do
-        newSettings[s] = exportedSettings[s]
+        sourceSettings[s] = nil
     end
-    exportedPhoto:applyDevelopSettings(newSettings)
+    exportedPhoto:applyDevelopSettings(sourceSettings, "Apply settings from source photo")
 end
 
 local METADATA_TO_COPY = {
