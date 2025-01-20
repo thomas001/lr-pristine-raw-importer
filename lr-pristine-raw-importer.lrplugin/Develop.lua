@@ -33,8 +33,7 @@ local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
 end
 
 local METADATA_TO_COPY = {
-    "rating", "colorNameForLabel",
-    "gps", "gpsAltitude", "pickStatus"
+    "rating", "gps", "gpsAltitude", "pickStatus",
 }
 
 --- Copies some metadata from source to exported photo.
@@ -47,6 +46,11 @@ local function applyMetadataFromSource(exportedPhoto, sourcePhoto)
         if val ~= nil then
             exportedPhoto:setRawMetadata(m, val)
         end
+    end
+    -- colorNameForLabel is special. Copying the default values results in wrong labels.
+    local colorNameForLabel = sourcePhoto:getRawMetadata("colorNameForLabel")
+    if colorNameForLabel and colorNameForLabel ~= "" and colorNameForLabel ~= "gray" then
+        exportedPhoto:setRawMetadata("colorNameForLabel", colorNameForLabel)
     end
 end
 
