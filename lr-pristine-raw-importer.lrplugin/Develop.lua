@@ -18,11 +18,18 @@ local SETTINGS_TO_REVERT = {
 --- @param sourcePhoto LrPhoto
 --- @return nil
 local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
-    local sourceSettings = sourcePhoto:getDevelopSettings()
+    local settings = sourcePhoto:getDevelopSettings()
+
     for _, s in ipairs(SETTINGS_TO_REVERT) do
-        sourceSettings[s] = nil
+        settings[s] = nil
     end
-    exportedPhoto:applyDevelopSettings(sourceSettings, "Apply settings from source photo")
+    if settings["WhiteBalance"] == "As Shot" then
+        -- Measured white point is different from original RAW and DxO processed
+        -- result. Prevent overwriting the adjusted white balance.
+        settings["Temperature"] = nil
+        settings["Tint"] = nil
+    end
+    exportedPhoto:applyDevelopSettings(settings, "Apply settings from source photo")
 end
 
 local METADATA_TO_COPY = {
