@@ -13,6 +13,14 @@ builtin "Enhance" workflow. In particular:
 - Collections, keywords, color, pick status are copied from the source photo
 - *No* new collection is created on every import
 
+## Customization
+
+The plugin has some basic preferences that can be tweaked in Lightroom's plugin
+manager:
+
+- How the photo exported from PureRAW is stacked with the source photo
+- How collections are updated after export 
+
 ## Installation
 
 PureRAW installs two Lightroom plugins: one plugin is responsible for sending
