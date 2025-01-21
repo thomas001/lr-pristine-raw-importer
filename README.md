@@ -40,8 +40,6 @@ Next go to the Lightroom plugin manager.
 ## Caveats
 
 - Tested only on my workstation
-- Develop settings are copied using `copySettings` which will replace previously
-  copied develop settings
 - Error handling is basic, if a import error occurs the plugin shuts itself down 
 
 ## Disclaimers

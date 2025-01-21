@@ -1,6 +1,10 @@
 -- Copyright (c) 2025 Thomas Weidner. All rights reserved.
 -- Licensed under the Apache License, Version 2.0. See LICENSE for details.
 
+local Utils = require "Utils"
+local Logger = require "Logger"
+local Preferences = require "Preferences"
+
 local SETTINGS_TO_REVERT = {
     "Sharpness", "SharpenDetail", "SharpenEdgeMasking", "SharpenRadius",
     "EnableLensCorrections", "ChromaticAberrationB", "ChromaticAberrationR",
@@ -13,34 +17,29 @@ local SETTINGS_TO_REVERT = {
     "VignetteAmount", "VignetteMidpoint",
 }
 
+local CollectionMode = Preferences.CollectionMode
+
 --- Copies develop settings from source to exported photo.
 --- @param exportedPhoto  LrPhoto
 --- @param sourcePhoto LrPhoto
 --- @return nil
 local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
-    -- 1. Store import settings
-    local exportedSettings = exportedPhoto:getDevelopSettings()
-    -- 2. Copy settings from source photo
-    -- Using copySettings/pasteSettings is much more stable, but we need to revert some pasted settings
-    local ok = sourcePhoto:copySettings()
-    if not ok then
-        error(("Could not copy settings from %q"):format(sourcePhoto:getFormattedMetadata("fileName")))
-    end
-    ok = exportedPhoto:pasteSettings()
-    if not ok then
-        error(("Could not paste settings to %1"):format(exportedPhoto:getFormattedMetadata("fileName")))
-    end
-    -- 3. Update settings
-    local newSettings = {} --- @type {[string]:LrUnspecified}
+    local settings = sourcePhoto:getDevelopSettings()
+
     for _, s in ipairs(SETTINGS_TO_REVERT) do
-        newSettings[s] = exportedSettings[s]
+        settings[s] = nil
     end
-    exportedPhoto:applyDevelopSettings(newSettings)
+    if settings["WhiteBalance"] == "As Shot" then
+        -- Measured white point is different from original RAW and DxO processed
+        -- result. Prevent overwriting the adjusted white balance.
+        settings["Temperature"] = nil
+        settings["Tint"] = nil
+    end
+    exportedPhoto:applyDevelopSettings(settings, "Apply settings from source photo")
 end
 
 local METADATA_TO_COPY = {
-    "rating", "colorNameForLabel",
-    "gps", "gpsAltitude", "pickStatus"
+    "rating", "gps", "gpsAltitude", "pickStatus",
 }
 
 --- Copies some metadata from source to exported photo.
@@ -53,6 +52,11 @@ local function applyMetadataFromSource(exportedPhoto, sourcePhoto)
         if val ~= nil then
             exportedPhoto:setRawMetadata(m, val)
         end
+    end
+    -- colorNameForLabel is special. Copying the default values results in wrong labels.
+    local colorNameForLabel = sourcePhoto:getRawMetadata("colorNameForLabel")
+    if colorNameForLabel and colorNameForLabel ~= "" and colorNameForLabel ~= "gray" then
+        exportedPhoto:setRawMetadata("colorNameForLabel", colorNameForLabel)
     end
 end
 
@@ -73,11 +77,21 @@ end
 --- Copies collections from source to exported photo.
 --- @param exportedPhoto  LrPhoto
 --- @param sourcePhoto LrPhoto
+--- @param mode CollectionMode
 --- @return nil
-local function applyCollectionsFromSource(exportedPhoto, sourcePhoto)
+local function applyCollectionsFromSource(exportedPhoto, sourcePhoto, mode)
     local collections = sourcePhoto:getContainedCollections()
     for _, col in ipairs(collections) do
-        col:addPhotos({ exportedPhoto })
+        if mode == CollectionMode.addExportedPhoto then
+            col:addPhotos({ exportedPhoto })
+        elseif mode == CollectionMode.addExportedPhotoAndRemoveSource then
+            col:addPhotos({ exportedPhoto })
+            col:removePhotos({ sourcePhoto })
+        elseif mode == CollectionMode.noChange then
+            -- do nothing
+        else
+            error(string.format("Unsupported collection mode: %q", mode))
+        end
     end
 end
 
@@ -86,12 +100,13 @@ Develop = {}
 --- Copies settings, keywords, collections from source to exported photo.
 --- @param exportedPhoto  LrPhoto
 --- @param sourcePhoto LrPhoto
+--- @param prefs PluginPreferences
 --- @return nil
-function Develop.copyFromSource(exportedPhoto, sourcePhoto)
+function Develop.apply(exportedPhoto, sourcePhoto, prefs)
     applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
     applyMetadataFromSource(exportedPhoto, sourcePhoto)
     applyKeywordsFromSource(exportedPhoto, sourcePhoto)
-    applyCollectionsFromSource(exportedPhoto, sourcePhoto)
+    applyCollectionsFromSource(exportedPhoto, sourcePhoto, prefs.collectionMode)
 end
 
 return Develop
