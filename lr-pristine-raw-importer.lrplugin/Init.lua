@@ -14,16 +14,36 @@ local Parser = require "Parser"
 local Develop = require "Develop"
 local Logger = require "Logger"
 local Utils = require "Utils"
+local Preferences = require "Preferences"
+
+local StackingMode = Preferences.StackingMode
 
 _G.shutting_down = false
 
+--- @param cat LrCatalog
+--- @param exportedPath string
+--- @param sourcePhoto LrPhoto
+--- @param mode StackingMode
+--- @return LrPhoto
+local function addPhoto(cat, exportedPath, sourcePhoto, mode)
+    if mode == StackingMode.above then
+        return cat:addPhoto(exportedPath, sourcePhoto, "above")
+    elseif mode == StackingMode.below then
+        return cat:addPhoto(exportedPath, sourcePhoto, "below")
+    elseif mode == StackingMode.noStack then
+        return cat:addPhoto(exportedPath)
+    else
+        error(string.format("Invalid stacking mode: %q", mode))
+    end
+end
 
 --- Imports a single photo.
 --- @param cat LrCatalog
 --- @param exportedPath string path to the exported photo
 --- @param sourcePath string path to the source photo
+--- @param prefs PluginPreferences
 --- @return nil
-local function processPhoto(cat, exportedPath, sourcePath)
+local function processPhoto(cat, exportedPath, sourcePath, prefs)
     if not LrFileUtils.exists(exportedPath) then
         error(("Exported photo does not exist: %q"):format(exportedPath))
     end
@@ -31,16 +51,11 @@ local function processPhoto(cat, exportedPath, sourcePath)
     if sourcePhoto == nil then
         error(("Source photo not found in catalog: %q"):format(sourcePath))
     end
-    Logger:infof("Metadata for %q", sourcePath)
-    Utils.logTable(sourcePhoto:getRawMetadata(), "")
     if cat:findPhotoByPath(exportedPath) == nil then
         local leafName = LrPathUtils.leafName(exportedPath)
         cat:withWriteAccessDo(string.format("Importing %s", leafName), function(context)
-            local exportedPhoto = cat:addPhoto(exportedPath, sourcePhoto, "above")
-            Develop.copyFromSource(exportedPhoto, sourcePhoto)
-
-            Logger:infof("Metadata for %q", exportedPath)
-            Utils.logTable(exportedPhoto:getRawMetadata(), "")
+            local exportedPhoto = addPhoto(cat, exportedPath, sourcePhoto, prefs.stackingMode)
+            Develop.apply(exportedPhoto, sourcePhoto, prefs)
         end)
     end
 end
@@ -50,6 +65,8 @@ end
 --- @param result ParserResult
 --- @return nil
 local function processResult(context, result)
+    local prefs = Preferences.prefs()
+
     local cat = LrApplication.activeCatalog()
     local total = Utils.tableSize(result.exportedImages)
     local done = 0
@@ -58,7 +75,7 @@ local function processResult(context, result)
     scope:setPortionComplete(0, total)
 
     for exportedPath, sourcePath in pairs(result.exportedImages) do
-        processPhoto(cat, exportedPath, sourcePath)
+        processPhoto(cat, exportedPath, sourcePath, prefs)
 
         done = done + 1
         scope:setPortionComplete(done, total)
@@ -111,5 +128,7 @@ local function importLoop(context)
     end
     Logger:info("Import loop finished")
 end
+
+Preferences.init()
 
 LrFunctionContext.postAsyncTaskWithContext("importLoop", importLoop)

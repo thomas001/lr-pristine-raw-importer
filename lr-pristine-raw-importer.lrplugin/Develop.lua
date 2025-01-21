@@ -1,6 +1,10 @@
 -- Copyright (c) 2025 Thomas Weidner. All rights reserved.
 -- Licensed under the Apache License, Version 2.0. See LICENSE for details.
 
+local Utils = require "Utils"
+local Logger = require "Logger"
+local Preferences = require "Preferences"
+
 local SETTINGS_TO_REVERT = {
     "Sharpness", "SharpenDetail", "SharpenEdgeMasking", "SharpenRadius",
     "EnableLensCorrections", "ChromaticAberrationB", "ChromaticAberrationR",
@@ -12,6 +16,8 @@ local SETTINGS_TO_REVERT = {
     "LensProfileSetup",
     "VignetteAmount", "VignetteMidpoint",
 }
+
+local CollectionMode = Preferences.CollectionMode
 
 --- Copies develop settings from source to exported photo.
 --- @param exportedPhoto  LrPhoto
@@ -71,11 +77,21 @@ end
 --- Copies collections from source to exported photo.
 --- @param exportedPhoto  LrPhoto
 --- @param sourcePhoto LrPhoto
+--- @param mode CollectionMode
 --- @return nil
-local function applyCollectionsFromSource(exportedPhoto, sourcePhoto)
+local function applyCollectionsFromSource(exportedPhoto, sourcePhoto, mode)
     local collections = sourcePhoto:getContainedCollections()
     for _, col in ipairs(collections) do
-        col:addPhotos({ exportedPhoto })
+        if mode == CollectionMode.addExportedPhoto then
+            col:addPhotos({ exportedPhoto })
+        elseif mode == CollectionMode.addExportedPhotoAndRemoveSource then
+            col:addPhotos({ exportedPhoto })
+            col:removePhotos({ sourcePhoto })
+        elseif mode == CollectionMode.noChange then
+            -- do nothing
+        else
+            error(string.format("Unsupported collection mode: %q", mode))
+        end
     end
 end
 
@@ -84,12 +100,13 @@ Develop = {}
 --- Copies settings, keywords, collections from source to exported photo.
 --- @param exportedPhoto  LrPhoto
 --- @param sourcePhoto LrPhoto
+--- @param prefs PluginPreferences
 --- @return nil
-function Develop.copyFromSource(exportedPhoto, sourcePhoto)
+function Develop.apply(exportedPhoto, sourcePhoto, prefs)
     applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
     applyMetadataFromSource(exportedPhoto, sourcePhoto)
     applyKeywordsFromSource(exportedPhoto, sourcePhoto)
-    applyCollectionsFromSource(exportedPhoto, sourcePhoto)
+    applyCollectionsFromSource(exportedPhoto, sourcePhoto, prefs.collectionMode)
 end
 
 return Develop

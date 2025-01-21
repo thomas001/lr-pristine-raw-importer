@@ -17,6 +17,7 @@
 --- @overload fun(name: "LrApplication"): LrApplication
 --- @overload fun(name: "LrProgressScope"): (fun(params: LrProgressScopeParams): LrProgressScope)
 --- @overload fun(name: "LrView"): LrView
+--- @overload fun(name: "LrPrefs"): LrPrefs
 function import(name) end
 
 --- @class LrLogger
@@ -99,6 +100,9 @@ LrCollection = {}
 
 --- @param photos LrPhoto[]
 function LrCollection:addPhotos(photos) end
+
+--- @param photos LrPhoto[]
+function LrCollection:removePhotos(photos) end
 
 --- @class LrFunctionContext
 LrFunctionContext = {}
@@ -225,6 +229,22 @@ LrView = {}
 --- @return LrViewFactory
 function LrView.osFactory() end
 
+--- @class LrViewBinding
+
+--- @class LrViewBindingArgs
+--- @field key string
+--- @field bind_to_object? string
+--- @field transform? fun(any, boolean)any
+
+
+--- @param args string|LrViewBindingArgs
+--- @return LrViewBinding
+function LrView.bind(args) end
+
+--- @param args string
+--- @return LrViewBinding
+function LrView.share(args) end
+
 --- @class LrViewFactory
 LrViewFactory = {}
 
@@ -232,9 +252,36 @@ LrViewFactory = {}
 --- @return LrViewElement
 function LrViewFactory:row(args) end
 
+--- @param args {[integer]: LrViewElement}
+--- @return LrViewElement
+function LrViewFactory:column(args) end
+
+--- @param args {[integer]: LrViewElement}
+--- @return LrViewElement
+function LrViewFactory:view(args) end
+
+--- @param args {[integer]: LrViewElement}
+--- @return LrViewElement
+function LrViewFactory:combo_box(args) end
+
+--- @param args {[integer]: LrViewElement}
+--- @return LrViewElement
+function LrViewFactory:popup_menu(args) end
+
+--- @param args {[integer]: LrViewElement}
+--- @return LrViewElement
+function LrViewFactory:checkbox(args) end
+
 --- @param args {title?: string, truncation?: string, selectable?: boolean, alignment?: string}
 --- @return LrViewElement
 function LrViewFactory:static_text(args) end
 
 --- @class LrViewElement
 LrViewElement = {}
+
+
+--- @class LrPrefs
+LrPrefs = {}
+
+--- @return table<string, any>
+function LrPrefs.prefsForPlugin() end
