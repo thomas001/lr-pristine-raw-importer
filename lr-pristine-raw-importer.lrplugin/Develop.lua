@@ -35,6 +35,12 @@ local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
         settings["Temperature"] = nil
         settings["Tint"] = nil
     end
+    -- The Look setting might set the camera profile. If present in
+    -- exportedPhoto, but not in sourcePhoto, then setting CameraProfile will
+    -- not work unless we unset Look.
+    if settings["Look"] == nil then
+        settings["Look"] = {}
+    end
     exportedPhoto:applyDevelopSettings(settings, "Apply settings from source photo")
 end
 
