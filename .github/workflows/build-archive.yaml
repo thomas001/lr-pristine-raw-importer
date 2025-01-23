@@ -16,4 +16,4 @@ jobs:
             -   name: git archive
                 run: cd repo && git archive --format=zip -o ../plugin.zip ${{github.ref}}
             -   name: upload
-                run: gh release upload ${{github.ref}} plugin.zip --repo ${{github.repository}}
+                run: gh release upload ${{github.ref_name}} plugin.zip --repo ${{github.repository}}
