@@ -17,5 +17,13 @@ jobs:
                     path: repo
             -   name: git archive
                 run: cd repo && git archive --format=zip -o ../plugin.zip ${{github.ref}}
+            -   name: build zip tree
+                run: |
+                    set -e
+                    mkdir zip
+                    cp -r repo/lr-pristine-raw-importer.lrplugin zip/
+                    cp repo/LICENSE zip/lr-pristine-raw-importer.lrplugin/
+                    sed -i 's|%%GITHUB_REF_NAME%%|${{github.ref_name}}|g' zip/lr-pristine-raw-importer.lrplugin/Settings.lua
+                    sed -i 's|%%GITHUB_SHA%%|${{github.sha}}|g' zip/lr-pristine-raw-importer.lrplugin/Settings.lua
             -   name: upload
                 run: gh release upload ${{github.ref_name}} plugin.zip --repo ${{github.repository}}
