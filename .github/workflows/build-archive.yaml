@@ -1,0 +1,17 @@
+name: Build plugin.zip
+on:
+    release:
+        types:
+            - created
+jobs:
+    BuildAndUploadZip:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: checkout
+                uses: actions/checkout@v4
+                with:
+                    path: repo
+            -   name: git archive
+                run: cd repo && git archive --format=zip -o ../plugin.zip ${{github.ref}}
+            -   name: upload
+                run: gh release upload ${{github.ref}} plugin.zip
