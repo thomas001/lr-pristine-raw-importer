@@ -45,11 +45,17 @@ end
 --- @return nil
 local function processPhoto(cat, exportedPath, sourcePath, prefs)
     if not LrFileUtils.exists(exportedPath) then
-        error(("Exported photo does not exist: %q"):format(exportedPath))
+        local msg = string.format("Exported photo does not exist: %q", exportedPath)
+        Logger:error(msg)
+        LrDialogs.message(msg)
+        return
     end
     local sourcePhoto = cat:findPhotoByPath(sourcePath)
     if sourcePhoto == nil then
-        error(("Source photo not found in catalog: %q"):format(sourcePath))
+        local msg = string.format("Source photo not found in catalog: %q", sourcePath)
+        Logger:error(msg)
+        LrDialogs.message(msg)
+        return
     end
     if cat:findPhotoByPath(exportedPath) == nil then
         local leafName = LrPathUtils.leafName(exportedPath)
