@@ -21,8 +21,8 @@ jobs:
                     mkdir zip
                     cp -r repo/lr-pristine-raw-importer.lrplugin zip/
                     cp repo/LICENSE zip/lr-pristine-raw-importer.lrplugin/
-                    sed -i 's|%%GITHUB_REF_NAME%%|${{github.ref_name}}|g' zip/lr-pristine-raw-importer.lrplugin/Settings.lua
-                    sed -i 's|%%GITHUB_SHA%%|${{github.sha}}|g' zip/lr-pristine-raw-importer.lrplugin/Settings.lua
+                    sed -i 's|%%GITHUB_REF_NAME%%|${{github.ref_name}}|g' zip/lr-pristine-raw-importer.lrplugin/Settings.lua zip/lr-pristine-raw-importer.lrplugin/Info.lua
+                    sed -i 's|%%GITHUB_SHA%%|${{github.sha}}|g' zip/lr-pristine-raw-importer.lrplugin/Settings.lua zip/lr-pristine-raw-importer.lrplugin/Info.lua
             -   name: build zip file
                 run: env -C zip zip -r "$PWD/plugin.zip" .
             -   name: upload

@@ -2,7 +2,7 @@
 -- Licensed under the Apache License, Version 2.0. See LICENSE for details.
 
 return {
-    VERSION = { major = 1, minor = 0, revision = 0 },
+    VERSION = { display = "%%GITHUB_REF_NAME%% (%%GITHUB_SHA%%)" },
     LrSdkVersion = 6.0,
     LrToolkitIdentifier = "com.github.thomas001.lr-pristine-raw-importer",
     LrPluginName = "Pristine RAW Importer",
