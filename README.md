@@ -28,7 +28,7 @@ images to PureRAW and starting the program. The other plugin then imports the
 processed images back into Lightroom. Only the import plugin is replaced by
 Pristine RAW Importer.
 
-1. Download the [latest release](https://github.com/thomas001/lr-pristine-raw-importer/releases) and extract it.
+1. Download the [latest release](https://github.com/thomas001/lr-pristine-raw-importer/releases/latest/download/plugin.zip) and extract it.
 
 Next go to the Lightroom plugin manager.
 
