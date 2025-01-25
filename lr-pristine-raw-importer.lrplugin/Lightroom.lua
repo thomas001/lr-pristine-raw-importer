@@ -69,9 +69,11 @@ LrUnspecified = {}
 --- @overload fun(self: LrPhoto, m: string): LrUnspecified | nil
 function LrPhoto:getRawMetadata() end
 
+-- Requires SDK 10.3
 --- @return boolean
 function LrPhoto:copySettings() end
 
+-- Requires SDK 10.3
 --- @param updateAISettings? boolean
 --- @return boolean
 function LrPhoto:pasteSettings(updateAISettings) end
