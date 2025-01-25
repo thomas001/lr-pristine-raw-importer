@@ -18,6 +18,7 @@ function Parser.parse(import_contents)
     local seen_collection_name = false --- @type boolean
     local source_images = {}           --- @type string[]
     local destination_images = {}      --- @type {[string]: string}
+    local resetSourceImages = true
 
     --- Parses a line looking for the collection name.
     ---
@@ -54,6 +55,11 @@ function Parser.parse(import_contents)
             return false
         end
 
+        if resetSourceImages then
+            source_images = {}
+            resetSourceImages = false
+        end
+
         source_image = LrStringUtils.trimWhitespace(source_image)
         table.insert(source_images, source_image)
         return true
@@ -67,6 +73,9 @@ function Parser.parse(import_contents)
         if source_index == nil then
             return false
         end
+
+        -- The next time we see a source image, it's from a different export block.
+        resetSourceImages = true
 
         export_path = LrStringUtils.trimWhitespace(export_path)
         source_index = tonumber(source_index)
