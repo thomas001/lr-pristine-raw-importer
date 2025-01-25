@@ -60,7 +60,9 @@ local function processPhoto(cat, exportedPath, sourcePath, prefs)
     if cat:findPhotoByPath(exportedPath) == nil then
         local leafName = LrPathUtils.leafName(exportedPath)
         cat:withWriteAccessDo(string.format("Importing %s", leafName), function(context)
-            local exportedPhoto = addPhoto(cat, exportedPath, sourcePhoto, prefs.stackingMode)
+            local exportedPhoto = Utils.try("Add exported photo to catalog", function()
+                return addPhoto(cat, exportedPath, sourcePhoto, prefs.stackingMode)
+            end)
             Develop.apply(exportedPhoto, sourcePhoto, prefs)
         end)
     end
@@ -96,12 +98,16 @@ end
 local function singleIteration(context, trigger_path, import_path)
     if LrFileUtils.exists(trigger_path) then
         Logger:infof("Trigger file %q detected", trigger_path)
-        local import_contents = LrFileUtils.readFile(import_path)
+        local import_contents = Utils.try("Read PureRAW import file", function()
+            return LrFileUtils.readFile(import_path)
+        end)
         local parsed = Parser.parse(import_contents)
         Logger:infof("Import file %q parsed containing %d photos", import_path, Utils.tableSize(parsed.exportedImages))
         processResult(context, parsed)
-        LrFileUtils.delete(trigger_path)
-        LrFileUtils.delete(import_path)
+        Utils.try("Delete PureRAW trigger files", function()
+            LrFileUtils.delete(trigger_path)
+            LrFileUtils.delete(import_path)
+        end)
     end
 end
 

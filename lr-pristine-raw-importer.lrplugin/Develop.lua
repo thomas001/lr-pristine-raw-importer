@@ -24,7 +24,9 @@ local CollectionMode = Preferences.CollectionMode
 --- @param sourcePhoto LrPhoto
 --- @return nil
 local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
-    local settings = sourcePhoto:getDevelopSettings()
+    local settings = Utils.try("Get develop settings for source photo", function()
+        return sourcePhoto:getDevelopSettings()
+    end)
 
     for _, s in ipairs(SETTINGS_TO_REVERT) do
         settings[s] = nil
@@ -41,7 +43,9 @@ local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
     if settings["Look"] == nil then
         settings["Look"] = {}
     end
-    exportedPhoto:applyDevelopSettings(settings, "Apply settings from source photo")
+    Utils.try("Apply develop settings to exported photo", function()
+        exportedPhoto:applyDevelopSettings(settings, "Apply settings from source photo")
+    end)
 end
 
 local METADATA_TO_COPY = {
@@ -54,15 +58,23 @@ local METADATA_TO_COPY = {
 --- @return nil
 local function applyMetadataFromSource(exportedPhoto, sourcePhoto)
     for _, m in ipairs(METADATA_TO_COPY) do
-        local val = sourcePhoto:getRawMetadata(m)
+        local val = Utils.try(string.format("Get raw metadata %q", m), function()
+            return sourcePhoto:getRawMetadata(m)
+        end)
         if val ~= nil then
-            exportedPhoto:setRawMetadata(m, val)
+            Utils.try(string.format("Set raw metadata %q", m), function()
+                exportedPhoto:setRawMetadata(m, val)
+            end)
         end
     end
     -- colorNameForLabel is special. Copying the default values results in wrong labels.
-    local colorNameForLabel = sourcePhoto:getRawMetadata("colorNameForLabel")
+    local colorNameForLabel = Utils.try(string.format("Get raw metadata 'colorNameForLabel'"), function()
+        return sourcePhoto:getRawMetadata("colorNameForLabel")
+    end)
     if colorNameForLabel and colorNameForLabel ~= "" and colorNameForLabel ~= "gray" then
-        exportedPhoto:setRawMetadata("colorNameForLabel", colorNameForLabel)
+        Utils.try("Set raw metadata 'colorNameForLabel'", function()
+            exportedPhoto:setRawMetadata("colorNameForLabel", colorNameForLabel)
+        end)
     end
 end
 
@@ -71,12 +83,16 @@ end
 --- @param sourcePhoto LrPhoto
 --- @return nil
 local function applyKeywordsFromSource(exportedPhoto, sourcePhoto)
-    local keywords = sourcePhoto:getRawMetadata("keywords")
+    local keywords = Utils.try(string.format("Get raw metadata 'keywords'"), function()
+        return sourcePhoto:getRawMetadata("keywords")
+    end)
     if keywords == nil then
         return
     end
     for _, kw in ipairs(keywords) do
-        exportedPhoto:addKeyword(kw)
+        Utils.try("Add keyword", function()
+            exportedPhoto:addKeyword(kw)
+        end)
     end
 end
 
@@ -89,10 +105,16 @@ local function applyCollectionsFromSource(exportedPhoto, sourcePhoto, mode)
     local collections = sourcePhoto:getContainedCollections()
     for _, col in ipairs(collections) do
         if mode == CollectionMode.addExportedPhoto then
-            col:addPhotos({ exportedPhoto })
+            Utils.try("Add exported photo to collection", function()
+                col:addPhotos({ exportedPhoto })
+            end)
         elseif mode == CollectionMode.addExportedPhotoAndRemoveSource then
-            col:addPhotos({ exportedPhoto })
-            col:removePhotos({ sourcePhoto })
+            Utils.try("Add exported photo to collection", function()
+                col:addPhotos({ exportedPhoto })
+            end)
+            Utils.try("Remove source photo from collection", function()
+                col:removePhotos({ sourcePhoto })
+            end)
         elseif mode == CollectionMode.noChange then
             -- do nothing
         else

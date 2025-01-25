@@ -1,6 +1,7 @@
 -- Copyright (c) 2025 Thomas Weidner. All rights reserved.
 -- Licensed under the Apache License, Version 2.0. See LICENSE for details.
 
+local LrTasks = import "LrTasks"
 local Logger = require "Logger"
 
 local Utils = {}
@@ -27,6 +28,20 @@ function Utils.logTable(tbl, prefix)
         else
             Logger:infof("%s%s = %q", prefix, k, v)
         end
+    end
+end
+
+--- @generic T
+--- @param what string
+--- @param fn fun(): T
+--- @return T
+--- @overload fun(what: string, fn: fun())
+function Utils.try(what, fn)
+    local ok, r = LrTasks.pcall(fn)
+    if ok then
+        return r
+    else
+        error(string.format("Failed: %s: %s", what, r))
     end
 end
 

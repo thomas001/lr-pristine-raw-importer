@@ -131,6 +131,13 @@ LrTasks = {}
 --- @return nil
 function LrTasks.sleep(d) end
 
+--- @generic T
+--- @param fn function
+--- @param ... any
+--- @return boolean success
+--- @return any ...
+function LrTasks.pcall(fn, ...) end
+
 --- @class LrPathUtils
 LrPathUtils = {}
 
