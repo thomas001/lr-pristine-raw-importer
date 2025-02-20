@@ -5,6 +5,7 @@ local LrPrefs = import "LrPrefs"
 local LrView = import "LrView"
 
 local Logger = require "Logger"
+local Settings = require 'Settings'
 
 local Preferences = {}
 
@@ -42,8 +43,8 @@ function Preferences.settingsView(viewFactory)
             viewFactory:popup_menu {
                 value = LrView.bind "pureRawVersion",
                 items = {
-                    { title = "DxO PureRaw v4",  value = PureRawVersions.v4 },
-                    { title = "DxO PureRaw v3",  value = PureRawVersions.v3 },
+                    { title = "DxO PureRaw v4", value = PureRawVersions.v4 },
+                    { title = "DxO PureRaw v3", value = PureRawVersions.v3 },
                 },
                 width = LrView.share "_control_width",
             },
@@ -81,6 +82,18 @@ function Preferences.settingsView(viewFactory)
             },
         },
     }
+end
+
+--- @return string
+function Preferences.TriggerFileName()
+    local prefs = Preferences.prefs()
+    return Settings.BaseTriggerFileName .. prefs.pureRawVersion
+end
+
+--- @return string
+function Preferences.ImportFileName()
+    local prefs = Preferences.prefs()
+    return Settings.BaseImportFileName .. prefs.pureRawVersion
 end
 
 --- @generic T

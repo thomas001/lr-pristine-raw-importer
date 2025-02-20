@@ -3,7 +3,8 @@
 
 return {
     Version = "%%GITHUB_REF_NAME%%",
-    TriggerFileName = "dxo-trigger-PureRaw",
-    ImportFileName = "dxo-imported-files-PureRaw",
-    PluginDescription = "Pristine RAW Importer is a Lightroom plugin for importing photos processed with DxO PureRAW 3 or 4.",
+    BaseTriggerFileName = "dxo-trigger-PureRaw",
+    BaseImportFileName = "dxo-imported-files-PureRaw",
+    PluginDescription =
+    "Pristine RAW Importer is a Lightroom plugin for importing photos processed with DxO PureRAW 3 or 4.",
 }
