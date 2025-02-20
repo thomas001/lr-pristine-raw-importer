@@ -8,6 +8,8 @@ local Logger = require "Logger"
 
 local Preferences = {}
 
+--- @enum PureRawVersions
+PureRawVersions = { v3 = "v3", v4 = "v4" }
 
 --- @enum StackingMode
 StackingMode = { above = "above", below = "below", noStack = "noStack" }
@@ -21,6 +23,7 @@ local CollectionMode = {
 }
 
 --- @class PluginPreferences
+--- @field pureRawVersion PureRawVersions
 --- @field stackingMode StackingMode
 --- @field collectionMode CollectionMode
 
@@ -30,6 +33,21 @@ function Preferences.settingsView(viewFactory)
     local prefs = LrPrefs.prefsForPlugin()
     return viewFactory:column {
         bind_to_object = prefs,
+        viewFactory:row {
+            viewFactory:static_text {
+                title = "DxO Pure Raw version",
+                aligment = "right",
+                width = LrView.share "_label_width",
+            },
+            viewFactory:popup_menu {
+                value = LrView.bind "pureRawVersion",
+                items = {
+                    { title = "DxO PureRaw v4",  value = PureRawVersions.v4 },
+                    { title = "DxO PureRaw v3",  value = PureRawVersions.v3 },
+                },
+                width = LrView.share "_control_width",
+            },
+        },
         viewFactory:row {
             viewFactory:static_text {
                 title = "How to stack the exported photo",
@@ -84,6 +102,7 @@ end
 --- @return nil
 function Preferences.init()
     local prefs = LrPrefs.prefsForPlugin()
+    checkAndDefault(prefs, "pureRawVersion", PureRawVersions, PureRawVersions.v4)
     checkAndDefault(prefs, "stackingMode", StackingMode, StackingMode.above)
     checkAndDefault(prefs, "collectionMode", CollectionMode, CollectionMode.addExportedPhoto)
 end
@@ -93,6 +112,7 @@ function Preferences.prefs()
     return LrPrefs.prefsForPlugin()
 end
 
+Preferences.PureRawVersions = PureRawVersions
 Preferences.StackingMode = StackingMode
 Preferences.CollectionMode = CollectionMode
 

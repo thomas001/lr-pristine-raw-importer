@@ -116,9 +116,11 @@ end
 --- @param context LrFunctionContext
 --- @return nil
 local function importLoop(context)
+    local prefs = Preferences.prefs()
+
     local temp_path = LrPathUtils.getStandardFilePath("temp")
-    local trigger_path = LrPathUtils.child(temp_path, Settings.TriggerFileName)
-    local import_path = LrPathUtils.child(temp_path, Settings.ImportFileName)
+    local trigger_path = LrPathUtils.child(temp_path, (Settings.TriggerFileName .. prefs.pureRawVersion))
+    local import_path = LrPathUtils.child(temp_path, (Settings.ImportFileName .. prefs.pureRawVersion))
 
     Logger:info("Import loop started")
     while not _G.shutting_down do
