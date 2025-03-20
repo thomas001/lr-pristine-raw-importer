@@ -42,7 +42,7 @@ end
 --- @param exportedPath string path to the exported photo
 --- @param sourcePath string path to the source photo
 --- @param prefs PluginPreferences
---- @return nil
+--- @return LrPhoto|nil
 local function processPhoto(cat, exportedPath, sourcePath, prefs)
     if not LrFileUtils.exists(exportedPath) then
         local msg = string.format("Exported photo does not exist: %q", exportedPath)
@@ -59,12 +59,14 @@ local function processPhoto(cat, exportedPath, sourcePath, prefs)
     end
     if cat:findPhotoByPath(exportedPath) == nil then
         local leafName = LrPathUtils.leafName(exportedPath)
+        local exportedPhoto = nil
         cat:withWriteAccessDo(string.format("Importing %s", leafName), function(context)
-            local exportedPhoto = Utils.try("Add exported photo to catalog", function()
+            exportedPhoto = Utils.try("Add exported photo to catalog", function()
                 return addPhoto(cat, exportedPath, sourcePhoto, prefs.stackingMode)
             end)
             Develop.apply(exportedPhoto, sourcePhoto, prefs)
         end)
+        return exportedPhoto
     end
 end
 
@@ -82,11 +84,21 @@ local function processResult(context, result)
     local scope = LrProgressScope({ title = "Importing from PureRAW", functionContext = context })
     scope:setPortionComplete(0, total)
 
+    local exportedPhotos = {}
     for exportedPath, sourcePath in pairs(result.exportedImages) do
-        processPhoto(cat, exportedPath, sourcePath, prefs)
+        local exportedPhoto = processPhoto(cat, exportedPath, sourcePath, prefs)
+        if exportedPhoto then
+            table.insert(exportedPhotos, exportedPhoto)
+        end
 
         done = done + 1
         scope:setPortionComplete(done, total)
+    end
+
+    if prefs.afterImportSelect and #exportedPhotos > 0 then
+        Utils.try("Updating selected photos", function()
+            cat:setSelectedPhotos(exportedPhotos[1], exportedPhotos)
+        end)
     end
 end
 

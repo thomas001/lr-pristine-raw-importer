@@ -232,6 +232,11 @@ function LrCatalog:withWriteAccessDo(name, func, timeoutParams) end
 --- @return LrPhoto
 function LrCatalog:addPhoto(path, stackWithPhoto, position, metadataPresetUUID, developPresetUUID) end
 
+--- @param activePhoto LrPhoto
+--- @param otherSelectedPhotos LrPhoto[]
+--- @return nil
+function LrCatalog:setSelectedPhotos(activePhoto, otherSelectedPhotos) end
+
 --- @class LrView
 LrView = {}
 
@@ -284,6 +289,14 @@ function LrViewFactory:checkbox(args) end
 --- @param args {title?: string, truncation?: string, selectable?: boolean, alignment?: string}
 --- @return LrViewElement
 function LrViewFactory:static_text(args) end
+
+--- @param args {title?: string, show_title?: boolean}
+--- @return LrViewElement
+function LrViewFactory:group_box(args) end
+
+--- @param args {}
+--- @return LrViewElement
+function LrViewFactory:edit_field(args) end
 
 --- @class LrViewElement
 LrViewElement = {}

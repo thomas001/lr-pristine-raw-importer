@@ -27,6 +27,8 @@ local CollectionMode = {
 --- @field pureRawVersion PureRawVersions
 --- @field stackingMode StackingMode
 --- @field collectionMode CollectionMode
+--- @field afterImportSelect boolean
+--- @field afterImportLabel string|nil
 
 --- @param viewFactory LrViewFactory
 --- @return LrViewElement
@@ -81,6 +83,17 @@ function Preferences.settingsView(viewFactory)
                 width = LrView.share "_control_width",
             },
         },
+        viewFactory:group_box {
+            title = "After export",
+            viewFactory:row {
+                viewFactory:static_text { title = "Select photos", align = "right", width = LrView.share "_after_export_width" },
+                viewFactory:checkbox { value = LrView.bind "afterImportSelect" },
+            },
+            viewFactory:row {
+                viewFactory:static_text { title = "Apply a color label", align = "right", width = LrView.share "_after_export_width" },
+                viewFactory:edit_field { value = LrView.bind "afterImportLabel" },
+            },
+        },
     }
 end
 
@@ -112,12 +125,25 @@ local function checkAndDefault(prefs, name, type, default)
     end
 end
 
+--- @param prefs table<string, any>
+--- @param name string
+--- @param default any
+--- @return nil
+local function setDefault(prefs, name, default)
+    local value = prefs[name]
+    if value == nil then
+        prefs[name] = default
+    end
+end
+
 --- @return nil
 function Preferences.init()
     local prefs = LrPrefs.prefsForPlugin()
     checkAndDefault(prefs, "pureRawVersion", PureRawVersions, PureRawVersions.v4)
     checkAndDefault(prefs, "stackingMode", StackingMode, StackingMode.above)
     checkAndDefault(prefs, "collectionMode", CollectionMode, CollectionMode.addExportedPhoto)
+    setDefault(prefs, "afterImportSelect", false)
+    setDefault(prefs, "afterImportLabel", nil)
 end
 
 --- @return PluginPreferences

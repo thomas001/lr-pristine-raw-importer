@@ -123,6 +123,19 @@ local function applyCollectionsFromSource(exportedPhoto, sourcePhoto, mode)
     end
 end
 
+--- @param exportedPhoto LrPhoto
+--- @param label string|nil
+--- @return nil
+local function applyCustomLabel(exportedPhoto, label)
+    if label == nil or label:len() == 0 then
+        return
+    end
+
+    Utils.try("Set custom label for photo", function()
+        exportedPhoto:setRawMetadata("label", label)
+    end)
+end
+
 Develop = {}
 
 --- Copies settings, keywords, collections from source to exported photo.
@@ -135,6 +148,7 @@ function Develop.apply(exportedPhoto, sourcePhoto, prefs)
     applyMetadataFromSource(exportedPhoto, sourcePhoto)
     applyKeywordsFromSource(exportedPhoto, sourcePhoto)
     applyCollectionsFromSource(exportedPhoto, sourcePhoto, prefs.collectionMode)
+    applyCustomLabel(exportedPhoto, prefs.afterImportLabel)
 end
 
 return Develop
