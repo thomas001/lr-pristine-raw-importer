@@ -10,7 +10,7 @@ local Settings = require 'Settings'
 local Preferences = {}
 
 --- @enum PureRawVersions
-PureRawVersions = { v3 = "v3", v4 = "v4" }
+PureRawVersions = { v3 = "v3", v4 = "v4", v5 = "v5" }
 
 --- @enum StackingMode
 StackingMode = { above = "above", below = "below", noStack = "noStack" }
@@ -45,6 +45,7 @@ function Preferences.settingsView(viewFactory)
             viewFactory:popup_menu {
                 value = LrView.bind "pureRawVersion",
                 items = {
+                    { title = "Dxo PureRaw v5", value = PureRawVersions.v5 },
                     { title = "DxO PureRaw v4", value = PureRawVersions.v4 },
                     { title = "DxO PureRaw v3", value = PureRawVersions.v3 },
                 },
@@ -139,7 +140,7 @@ end
 --- @return nil
 function Preferences.init()
     local prefs = LrPrefs.prefsForPlugin()
-    checkAndDefault(prefs, "pureRawVersion", PureRawVersions, PureRawVersions.v4)
+    checkAndDefault(prefs, "pureRawVersion", PureRawVersions, PureRawVersions.v5)
     checkAndDefault(prefs, "stackingMode", StackingMode, StackingMode.above)
     checkAndDefault(prefs, "collectionMode", CollectionMode, CollectionMode.addExportedPhoto)
     setDefault(prefs, "afterImportSelect", false)
