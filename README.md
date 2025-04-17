@@ -1,6 +1,6 @@
 # Pristine RAW Importer
 
-A Lightroom plugin that imports photos processed with DxO PureRAW 4. 
+A Lightroom plugin that imports photos processed with DxO PureRAW.
 
 This plugin fulfills the same function as the official import plugin that ships
 with PureRAW, but it handles the import process differently which fits my
@@ -32,7 +32,7 @@ Pristine RAW Importer.
 
 Next go to the Lightroom plugin manager.
 
-2. Disable the `DxO PureRAW 4 Importer` plugin. Keep the `DxO PureRAW 4` plugin enabled! 
+2. Disable the `DxO PureRAW 5 Importer` plugin. Keep the `DxO PureRAW 5` plugin enabled!
    
    <details>
    
