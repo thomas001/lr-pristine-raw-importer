@@ -10,7 +10,7 @@ local Settings = require 'Settings'
 local Preferences = {}
 
 --- @enum PureRawVersions
-PureRawVersions = { v3 = "v3", v4 = "v4", v5 = "v5" }
+PureRawVersions = { any = "any", v3 = "v3", v4 = "v4", v5 = "v5" }
 
 --- @enum StackingMode
 StackingMode = { above = "above", below = "below", noStack = "noStack" }
@@ -45,9 +45,10 @@ function Preferences.settingsView(viewFactory)
             viewFactory:popup_menu {
                 value = LrView.bind "pureRawVersion",
                 items = {
-                    { title = "Dxo PureRaw v5", value = PureRawVersions.v5 },
-                    { title = "DxO PureRaw v4", value = PureRawVersions.v4 },
-                    { title = "DxO PureRaw v3", value = PureRawVersions.v3 },
+                    { title = "Any supported version", value = PureRawVersions.any },
+                    { title = "Dxo PureRaw v5",        value = PureRawVersions.v5 },
+                    { title = "DxO PureRaw v4",        value = PureRawVersions.v4 },
+                    { title = "DxO PureRaw v3",        value = PureRawVersions.v3 },
                 },
                 width = LrView.share "_control_width",
             },
@@ -98,16 +99,16 @@ function Preferences.settingsView(viewFactory)
     }
 end
 
+--- @param version PureRawVersions
 --- @return string
-function Preferences.TriggerFileName()
-    local prefs = Preferences.prefs()
-    return Settings.BaseTriggerFileName .. prefs.pureRawVersion
+function Preferences.TriggerFileName(version)
+    return Settings.BaseTriggerFileName .. version
 end
 
+--- @param version PureRawVersions
 --- @return string
-function Preferences.ImportFileName()
-    local prefs = Preferences.prefs()
-    return Settings.BaseImportFileName .. prefs.pureRawVersion
+function Preferences.ImportFileName(version)
+    return Settings.BaseImportFileName .. version
 end
 
 --- @generic T

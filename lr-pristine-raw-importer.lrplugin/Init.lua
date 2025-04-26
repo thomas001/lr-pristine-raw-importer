@@ -102,12 +102,14 @@ local function processResult(context, result)
     end
 end
 
---- Runs a single iteration of the import loop.
+--- Runs a single iteration of the import loop for one Dxo version
 --- @param context LrFunctionContext
---- @param trigger_path string path of the trigger file
---- @param import_path string path of the import file
+--- @param temp_path string path that contains Dxo trigger and import files
+--- @param version PureRawVersions the version to use
 --- @return nil
-local function singleIteration(context, trigger_path, import_path)
+local function singleIterationForVersion(context, temp_path, version)
+    local trigger_path = LrPathUtils.child(temp_path, Preferences.TriggerFileName(version))
+    local import_path = LrPathUtils.child(temp_path, Preferences.ImportFileName(version))
     if LrFileUtils.exists(trigger_path) then
         Logger:infof("Trigger file %q detected", trigger_path)
         local import_contents = Utils.try("Read PureRAW import file", function()
@@ -123,14 +125,29 @@ local function singleIteration(context, trigger_path, import_path)
     end
 end
 
+--- Runs a single iteration of the import loop for all Dxo versions
+--- @param context LrFunctionContext
+--- @param temp_path string path that contains Dxo trigger and import files
+--- @return nil
+local function singleIteration(context, temp_path)
+    local prefs = Preferences.prefs()
+    if prefs.pureRawVersion ~= Preferences.PureRawVersions.any then
+        return singleIterationForVersion(context, temp_path, prefs.pureRawVersion)
+    end
+
+    for _, v in pairs(Preferences.PureRawVersions) do
+        if v ~= Preferences.PureRawVersions.any then
+            singleIterationForVersion(context, temp_path, v)
+        end
+    end
+end
+
 
 --- Top level loop calling singleIteration until shutting down.
 --- @param context LrFunctionContext
 --- @return nil
 local function importLoop(context)
     local temp_path = LrPathUtils.getStandardFilePath("temp")
-    local trigger_path = LrPathUtils.child(temp_path, Preferences.TriggerFileName())
-    local import_path = LrPathUtils.child(temp_path, Preferences.ImportFileName())
 
     Logger:info("Import loop started")
     while not _G.shutting_down do
@@ -145,7 +162,7 @@ local function importLoop(context)
                 _G.shutting_down = true
             end)
             LrDialogs.attachErrorDialogToFunctionContext(context)
-            singleIteration(context, trigger_path, import_path)
+            singleIteration(context, temp_path)
         end)
 
         LrTasks.sleep(1)
