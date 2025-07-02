@@ -17,7 +17,13 @@ local SETTINGS_TO_REVERT = {
     "VignetteAmount", "VignetteMidpoint",
 }
 
+local FILTERS_TO_REVERT = {
+    "$$$/CRaw/Filter/Title/RawDetails=Raw Details",
+    "$$$/CRaw/Filter/Title/Denoise=Denoise",
+}
+
 local CollectionMode = Preferences.CollectionMode
+
 
 --- Copies develop settings from source to exported photo.
 --- @param exportedPhoto  LrPhoto
@@ -43,6 +49,16 @@ local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
     if settings["Look"] == nil then
         settings["Look"] = {}
     end
+    -- FilterList contains a list of named filters. We don't know what could be
+    -- in there, so we only selectively revert the ones we know about.
+    --- @type {Filters: {Title: string}[]?}?
+    local filterList = settings["FilterList"]
+    if filterList and filterList.Filters then
+        filterList.Filters = Utils.filter(filterList.Filters, function(i, filter)
+            return not Utils.containsValue(FILTERS_TO_REVERT, filter.Title)
+        end)
+    end
+    -- Finally, try to set the new settings.
     Utils.try("Apply develop settings to exported photo", function()
         exportedPhoto:applyDevelopSettings(settings, "Apply settings from source photo")
     end)

@@ -45,4 +45,36 @@ function Utils.try(what, fn)
     end
 end
 
+---@param lst any[]
+---@param val any
+---@return boolean
+function Utils.containsValue(lst, val)
+    for _, v in pairs(lst) do
+        if v == val then
+            return true
+        end
+    end
+    return false
+end
+
+---@generic K, V
+---@param tbl table<K,V>
+---@param predicate fun(k: K, v:V): boolean
+---@return table<K,V>
+function Utils.filter(tbl, predicate)
+    -- Lua LS seems to no t work with generics correctly here, so we need to
+    -- explicitly type them as "any" to prevent type check errors.
+
+    ---@type table<any,any>
+    local r = {}
+    ---@type table<any,any>
+    local t = tbl
+    for k, v in pairs(t) do
+        if predicate(k, v) then
+            r[k] = v
+        end
+    end
+    return r
+end
+
 return Utils
