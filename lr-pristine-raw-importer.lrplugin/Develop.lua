@@ -6,16 +6,26 @@ local Logger = require "Logger"
 local Preferences = require "Preferences"
 
 local SETTINGS_TO_REVERT = {
-    "Sharpness", "SharpenDetail", "SharpenEdgeMasking", "SharpenRadius",
-    "EnableLensCorrections", "ChromaticAberrationB", "ChromaticAberrationR",
+    "SharpenDetail", "SharpenEdgeMasking", "SharpenRadius",
+    "SharpenDetail", "SharpenEdgeMasking", "SharpenRadius",
     "Defringe", "DefringeGreenAmount", "DefringeGreenHueHi", "DefringeGreenHueLo",
     "DefringePurpleAmount", "DefringePurpleHueHi", "DefringePurpleHueLo",
-    "ColorNoiseReduction", "ColorNoiseReductionDetail", "ColorNoiseReductionSmoothness",
-    "AutoLateralCA",
-    "LensProfileEnable", "LensManualDistortionAmount", "LensProfileDistortionScale", "LensProfileVignettingScale",
-    "LensProfileSetup",
-    "VignetteAmount", "VignetteMidpoint",
+    "LensManualDistortionAmount", "LensProfileDistortionScale", "LensProfileVignettingScale",
+    "LensProfileSetup", "VignetteMidpoint", "VignetteAmount"
 }
+
+local SETTINGS_TO_ZERO = {
+    "Sharpness",
+    "LuminanceSmoothing",  
+    "ColorNoiseReduction",   
+    "AutoLateralCA",      
+    "LensProfileEnable",  
+}
+
+local SETTINGS_TO_DISABLE = {
+    "EnableLensCorrections",
+}
+
 
 local FILTERS_TO_REVERT = {
     "$$$/CRaw/Filter/Title/RawDetails=Raw Details",
@@ -37,6 +47,14 @@ local function applyDevelopSettingsFromSource(exportedPhoto, sourcePhoto)
     for _, s in ipairs(SETTINGS_TO_REVERT) do
         settings[s] = nil
     end
+    for _, s in ipairs(SETTINGS_TO_ZERO) do
+        settings[s] = 0
+    end
+
+    for _, s in ipairs(SETTINGS_TO_DISABLE) do
+        settings[s] = false
+    end
+
     if settings["WhiteBalance"] == "As Shot" then
         -- Measured white point is different from original RAW and DxO processed
         -- result. Prevent overwriting the adjusted white balance.
